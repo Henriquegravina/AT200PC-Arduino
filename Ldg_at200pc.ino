@@ -3,7 +3,7 @@
  *   This code is an implementation os LDG Electronics protocol to work
  *   with LDG AT200pc an very useful antenna tunner to all HF and 50mhz band
  *   
- *   This code is based on LDG  at200pc-serial-docs-v17.pdf
+ *   This code is based on LDG  at200pc-serial-docs-v17.pdf:http://www.ldgelectronics.com/assets/manuals/at200pc-serial-docs-v17.pdf
  *   
  *   Author: Henrique Brancher Gravina henrique(at)gravina.com.br ( PU3IKE )
  *   
@@ -104,22 +104,22 @@ void parse_ldg(byte buff[3]){
     
   }else if(buff[0] == CMD_INDVAL){
     Serial.print("Valor Indutor: ");
-    ind_val = buff[2];
+    ind_val = buff[1];
     Serial.println(ind_val,DEC);
     
   }else if(buff[0] == CMD_CAPVAL){
     Serial.print("Valor Capacitor: ");
-    cap_val = buff[2];
+    cap_val = buff[1];
     Serial.println(cap_val,DEC);
   
   }else if(buff[0] == CMD_HILOZ  ){
    Serial.print("HILOZ: ");
-   hilo_z = buff[2];
+   hilo_z = buff[1];
    Serial.println( hilo_z == true ? "LOW": "HIGH" );    
   
   }else if(buff[0] == CMD_ANTENNA  ){
    Serial.print("Antenna: ");
-   antenna_selection = buff[2];
+   antenna_selection = buff[1];
    Serial.println( antenna_selection == true ? "2": "1" );    
     
   }else if(buff[0] == CMD_FWDPWR){ 
@@ -136,7 +136,7 @@ void parse_ldg(byte buff[3]){
     
   }else if(buff[0] == CMD_SWR ){
      Serial.print("Potência Refletida: ");
-     float swr = sqrt(buff[3] / 256.0);
+     float swr = sqrt(buff[2] / 256.0);
      swr = (1.0 + swr) / (1.0 - swr);
      if(swr > 99.9) swr = 99.9;
      Serial.println(swr); 
@@ -156,14 +156,14 @@ void parse_ldg(byte buff[3]){
   }else if(buff[0] == CMD_TUNEFAIL ){
      Serial.print("Tune Failed: ");
      tunepassed = false;
-     tuneerror = buff[2];
+     tuneerror = buff[1];
      if(tuneerror == 00 ) Serial.println("No RF was detected");
      else if(tuneerror == 01 ) Serial.println("RF Carrier was lost before the tune completed.");
      else if(tuneerror == 02 ) Serial.println("The tuner was unable to bring the SWR down below the SWR Threshold.");
   
   }else if(buff[0] == CMD_VERSION ){ // This function must be reviwed
     Serial.print("Version: ");
-    ldg_version = map((buff[3])+127,0,255,0,15.15);
+    ldg_version = map((buff[2])+127,0,255,0,15.15);
     Serial.println(ldg_version);
   
   }else if(buff[0] == CMD_CLEAR_DONE ){
@@ -184,7 +184,7 @@ void parse_ldg(byte buff[3]){
     
   }else if(buff[0] == CMD_SWRTHRESH ){ // complete
     Serial.print("SWR threshhold: ");
-    swt_threshhold = buff[2];
+    swt_threshhold = buff[1];
     
     if(swt_threshhold == 0 ) Serial.println("1.1:1");
     else if(swt_threshhold == 1 ) Serial.println("1.3:1");
@@ -195,14 +195,14 @@ void parse_ldg(byte buff[3]){
     else if(swt_threshhold == 6 ) Serial.println("3.0:1");
 
     
-  }else if(buff[0] == CMD_AUTO_STATUS ){ // complete
+  }else if(buff[0] == CMD_AUTO_STATUS ){ 
     Serial.print("Auto tuning is:");
-    at_status = buff[2];
+    at_status = buff[1];
     Serial.println( at_status == true ? "Enabled": "Disabled" );    
     
-  }else if(buff[0] == CMD_UPDATE_STATUS){ // complete
+  }else if(buff[0] == CMD_UPDATE_STATUS){ 
     Serial.print("Live update:");
-    live_update = buff[2];
+    live_update = buff[1];
     Serial.println( live_update == true ? "Enabled": "Disabled" );    
 
   }
@@ -228,9 +228,9 @@ void setup() {
   digitalWrite(rts,LOW);
    
   
-
-
-  
+   ldg_write(REQ_UPDATE_ON);
+   ldg_write(REQ_ANT1);
+   ldg_write(REQ_VERSION);
 }
 
 byte buff[3];
@@ -248,7 +248,7 @@ void loop() {
    }
 
 
-  ldg_write(40); // send command to LDG
-  delay(5000);
+  
+  delay(500);
      
 }
