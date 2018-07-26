@@ -80,20 +80,37 @@ class At200pc
     At200pc(HardwareSerial &SerialCom,int pin);
     void parser(byte buff[3]);
     void write(char cmd);
+    void write_and_read(char cmd);
     void read();
+    
     int antenna_selected();
+    int swr_threshold_int();
+	
+	
+    String swr_threshold_string();
+	String hilo_z_string();
+	String capval_string();
+	String indval_string();
+    String instandby_string();
+    String at_status_string();
+    String powerfwd_string();	
+    String powerrev_string();
+	String swr_string();
+	String tx_frequency_string();
+	String live_update_string();
+
     
   private:
     HardwareSerial* printer;
     
     int rts; // pint to wake up at200pc
     
-    char buff[3];
+    byte buff[3];
     
     byte ind_val;
     byte cap_val;
     byte tuneerror;
-    byte swt_threshhold;
+    byte swr_threshhold = 7;
 
 	bool hilo_z;
 	bool antenna_selection;
@@ -108,6 +125,7 @@ class At200pc
 	float powerfwd;
 	float powerrev;
 	float swr_return;
+	float last_swr;
 	float tx_frequency;
 	float ldg_version;
     
